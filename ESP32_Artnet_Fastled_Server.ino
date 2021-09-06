@@ -75,32 +75,22 @@ CRGBArray<NUM_LEDS> leds;
 void setup() {
   pinMode(led, OUTPUT);
   digitalWrite(led, 1);
-
   //  delay(3000); // 3 second delay for recovery
   Serial.begin(115200);
-
   SPIFFS.begin();
-
-  
   setupWiFi();
-
-
   // three-wire LEDs (WS2811, WS2812, NeoPixel)
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-
   FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
-
   // set master brightness control
   FastLED.setBrightness(brightness);
 
-  
-
   initTest();
+  setupWeb();
 }
 
 void loop()
 {
-  handleWeb();
   AsyncElegantOTA.loop();
   FastLED.show();
   

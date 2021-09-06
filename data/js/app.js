@@ -43,25 +43,7 @@ var ignoreColorChange = false;
 $(document).ready(function() {
   $("#status").html("Connecting, please wait...");
 
-  $.get(urlBase + "all", function(data) {
-      $("#status").html("Loading, please wait...");
-
-      $.each(data, function(index, field) {
-        if (field.type == "Number") {
-          addNumberField(field);
-        } else if (field.type == "Boolean") {
-          addBooleanField(field);
-        } else if (field.type == "Select") {
-          addSelectField(field);
-        } else if (field.type == "Color") {
-          addColorFieldPalette(field);
-          addColorFieldPicker(field);
-        } else if (field.type == "Section") {
-          addSectionField(field);
-        }
-      });
-
-      $(".minicolors").minicolors({
+  $(".minicolors").minicolors({
         theme: "bootstrap",
         changeDelay: 200,
         control: "wheel",
@@ -69,7 +51,7 @@ $(document).ready(function() {
         inline: true
       });
 
-      $("#status").html("Ready");
+  $("#status").html("Ready");
     })
     .fail(function(errorThrown) {
       console.log("error: " + errorThrown);
