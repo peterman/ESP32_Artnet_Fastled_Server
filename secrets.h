@@ -1,6 +1,6 @@
 // Wi-Fi network to connect to (if not in AP mode)
-char* ssid = "fastled";
-char* password = "1234567890";
+char* ssid = "Weissig2011";
+char* password = "VereinsHaus";
 
 // Editor Access
 const char* editor_username = "admin";

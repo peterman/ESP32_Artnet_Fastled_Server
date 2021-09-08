@@ -23,7 +23,13 @@
 
 #include <AsyncElegantOTA.h>
 
+#include <ArtnetWifi.h>
+
 AsyncWebServer webServer(80);
+
+WiFiUDP UdpSend;
+ArtnetWifi artnet;
+uint8_t universe = 1;  // 0 - 15
 
 
 const int led = 2;
@@ -50,7 +56,7 @@ CRGB solidColor = CRGB::Blue;
 #define NUM_STRIPS 1
 #define NUM_LEDS_PER_STRIP 12
 #define NUM_LEDS NUM_LEDS_PER_STRIP * NUM_STRIPS
-CRGBArray<NUM_LEDS> leds;
+CRGB leds[NUM_LEDS];
 
 #define MILLI_AMPS         500 // IMPORTANT: set the max milli-Amps of your power supply (4A = 4000mA)
 #define FRAMES_PER_SECOND  120
@@ -64,7 +70,37 @@ CRGBArray<NUM_LEDS> leds;
 #include "includes.h"
 
 
+void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data)
+{
+  bool tail = false;
+  
+//  Serial.print("DMX: Univ: ");
+//  Serial.print(universe, DEC);
+//  Serial.print(", Seq: ");
+//  Serial.print(sequence, DEC);
+//  Serial.print(", Data (");
+//  Serial.print(length, DEC);
+//  Serial.print("): ");
+//  
+//  if (length > 8) {
+//    length = 8;
+//    tail = true;
+//  }
+//  // send out the buffer
+//  for (int i = 0; i < length; i++)
+//  {
+//    Serial.print(data[i]);
+//    Serial.print(" ");
+//  }
+//  if (tail) {
+//    Serial.print("...");
+//  }
+//  Serial.println();
+  FastLED.setBrightness(data[0]);
+  fill_solid( leds, NUM_LEDS, CRGB(data[1],data[2],data[3])); 
 
+  FastLED.show();
+}
 
 
 
@@ -73,8 +109,7 @@ CRGBArray<NUM_LEDS> leds;
 
 
 void setup() {
-  pinMode(led, OUTPUT);
-  digitalWrite(led, 1);
+  
   //  delay(3000); // 3 second delay for recovery
   Serial.begin(115200);
   SPIFFS.begin();
@@ -84,7 +119,10 @@ void setup() {
   FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
   // set master brightness control
   FastLED.setBrightness(brightness);
-
+  // this will be called for each packet received
+  artnet.setArtDmxCallback(onDmxFrame);
+  artnet.begin();
+  
   initTest();
   setupWeb();
 }
@@ -93,5 +131,6 @@ void loop()
 {
   AsyncElegantOTA.loop();
   FastLED.show();
-  
+  // we call the read function inside the loop
+  artnet.read();
 }
