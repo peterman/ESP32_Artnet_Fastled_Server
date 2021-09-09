@@ -123,7 +123,8 @@ void setup() {
   //  delay(3000); // 3 second delay for recovery
   Serial.begin(115200);
   SPIFFS.begin();
-  if (is_initial_program_load) {
+  if (is_initial_program_load() == true) {
+    Serial.println(F("generate new Config"));
     generateConfig(filename);
   }
   setupWiFi();
