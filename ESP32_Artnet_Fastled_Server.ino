@@ -1,19 +1,5 @@
-
-
-/*
-   
-*/
-
-// wifi ssid and password should be added to a file in the sketch named secrets.h
-// the secrets.h file should be added to the .gitignore file and never committed or
-// pushed to public source control (GitHub).
-// const char* ssid = "........";
-// const char* password = "........";
-//  #define TOKEN "token_............." // Set your Beebotte channel token
-
-
+#include <Preferences.h>
 #include <FastLED.h>
-#include <EEPROM.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <SPIFFS.h>
@@ -28,17 +14,15 @@
 #include <ArtnetWifi.h>
 
 AsyncWebServer webServer(80);
+Preferences prefs;
 
 WiFiUDP UdpSend;
 ArtnetWifi artnet;
+
+
 uint8_t universe = 1;  // 0 - 15
-
-
 const int led = 2;
-
 uint8_t power = 1;
-
-
 uint8_t brightness = 128;
 uint8_t speed = 5;
 
@@ -125,6 +109,7 @@ void setup() {
   //  delay(3000); // 3 second delay for recovery
   Serial.begin(115200);
   SPIFFS.begin();
+  EEPROM.begin(EEPROM_SIZE);
   if (is_initial_program_load() == true) {
     Serial.println(F("generate new Config"));
     generateConfig(filename);

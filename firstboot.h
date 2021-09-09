@@ -9,6 +9,8 @@
  */
 #define EEPROM_ADD_START_OF_DATA 0x13
 
+
+#define EEPROM_SIZE 12
 /**
 * Determine if this is the first power-up after
 * fresh program was loaded into the flash.
