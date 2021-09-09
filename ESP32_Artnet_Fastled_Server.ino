@@ -1,3 +1,5 @@
+
+
 /*
    
 */
@@ -20,7 +22,7 @@
 #include <SPIFFSEditor.h>
 #include <DNSServer.h>
 #include <FS.h>
-
+#include <ArduinoJson.h>
 #include <AsyncElegantOTA.h>
 
 #include <ArtnetWifi.h>
@@ -39,6 +41,16 @@ uint8_t power = 1;
 
 uint8_t brightness = 128;
 uint8_t speed = 5;
+
+struct Config {
+  char hostname[64];
+  char ssid[32];
+  char password[32];
+  int port;
+};
+
+const char *filename = "/config.json";  
+Config config;                         // <- global configuration object
 
 
 
@@ -63,7 +75,7 @@ CRGB leds[NUM_LEDS];
 
 
 
-
+#include "firstboot.h"
 #include "secrets.h"
 #include "wifi.h"
 #include "web.h"
@@ -113,6 +125,9 @@ void setup() {
   //  delay(3000); // 3 second delay for recovery
   Serial.begin(115200);
   SPIFFS.begin();
+  if (is_initial_program_load) {
+    generateConfig(filename);
+  }
   setupWiFi();
   // three-wire LEDs (WS2811, WS2812, NeoPixel)
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
@@ -130,7 +145,7 @@ void setup() {
 void loop()
 {
   AsyncElegantOTA.loop();
-  FastLED.show();
+  //FastLED.show();
   // we call the read function inside the loop
   artnet.read();
 }

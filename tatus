@@ -1,0 +1,115 @@
+[1mdiff --git a/ESP32_Artnet_Fastled_Server.ino b/ESP32_Artnet_Fastled_Server.ino[m
+[1mindex ac11064..969d7db 100644[m
+[1m--- a/ESP32_Artnet_Fastled_Server.ino[m
+[1m+++ b/ESP32_Artnet_Fastled_Server.ino[m
+[36m@@ -1,3 +1,5 @@[m
+[32m+[m
+[32m+[m
+ /*[m
+    [m
+ */[m
+[36m@@ -20,7 +22,7 @@[m
+ #include <SPIFFSEditor.h>[m
+ #include <DNSServer.h>[m
+ #include <FS.h>[m
+[31m-[m
+[32m+[m[32m#include <ArduinoJson.h>[m
+ #include <AsyncElegantOTA.h>[m
+ [m
+ #include <ArtnetWifi.h>[m
+[36m@@ -40,6 +42,16 @@[m [muint8_t power = 1;[m
+ uint8_t brightness = 128;[m
+ uint8_t speed = 5;[m
+ [m
+[32m+[m[32mstruct Config {[m
+[32m+[m[32m  char hostname[64];[m
+[32m+[m[32m  char ssid[32];[m
+[32m+[m[32m  char password[32];[m
+[32m+[m[32m  int port;[m
+[32m+[m[32m};[m
+[32m+[m
+[32m+[m[32mconst char *filename = "/config.json";[m[41m  [m
+[32m+[m[32mConfig config;                         // <- global configuration object[m
+[32m+[m
+ [m
+ [m
+ CRGB solidColor = CRGB::Blue;[m
+[36m@@ -63,7 +75,7 @@[m [mCRGB leds[NUM_LEDS];[m
+ [m
+ [m
+ [m
+[31m-[m
+[32m+[m[32m#include "firstboot.h"[m
+ #include "secrets.h"[m
+ #include "wifi.h"[m
+ #include "web.h"[m
+[36m@@ -113,6 +125,9 @@[m [mvoid setup() {[m
+   //  delay(3000); // 3 second delay for recovery[m
+   Serial.begin(115200);[m
+   SPIFFS.begin();[m
+[32m+[m[32m  if (is_initial_program_load) {[m
+[32m+[m[32m    generateConfig(filename);[m
+[32m+[m[32m  }[m
+   setupWiFi();[m
+   // three-wire LEDs (WS2811, WS2812, NeoPixel)[m
+   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);[m
+[36m@@ -130,7 +145,7 @@[m [mvoid setup() {[m
+ void loop()[m
+ {[m
+   AsyncElegantOTA.loop();[m
+[31m-  FastLED.show();[m
+[32m+[m[32m  //FastLED.show();[m
+   // we call the read function inside the loop[m
+   artnet.read();[m
+ }[m
+[1mdiff --git a/firstboot.ino b/firstboot.ino[m
+[1mdeleted file mode 100644[m
+[1mindex 42a4a25..0000000[m
+[1m--- a/firstboot.ino[m
+[1m+++ /dev/null[m
+[36m@@ -1,32 +0,0 @@[m
+[31m-/**[m
+[31m- * Address of the version data. This should never change between versions.[m
+[31m- */[m
+[31m-#define EEPROM_ADDR_VERSION_DATE 0x0[m
+[31m-[m
+[31m-/**[m
+[31m- * Your data should start after this location.[m
+[31m- * On gcc, __DATE_ is 11 chars long, __TIME__ is 8[m
+[31m- */[m
+[31m-#define EEPROM_ADD_START_OF_DATA 0x13[m
+[31m-[m
+[31m-/**[m
+[31m-* Determine if this is the first power-up after[m
+[31m-* fresh program was loaded into the flash.[m
+[31m-*/[m
+[31m-boolean is_initial_program_load()[m
+[31m-{[m
+[31m-    const String version_date = __DATE__ __TIME__;[m
+[31m-    uint16_t len = version_date.length();[m
+[31m-    boolean is_ipl = false;[m
+[31m-[m
+[31m-    for (unsigned int i = 0; i < len; i++) {[m
+[31m-        int addr = EEPROM_ADDR_VERSION_DATE + i;[m
+[31m-[m
+[31m-        if (EEPROM.read(addr) != version_date[i]) {[m
+[31m-            EEPROM.write(addr, version_date[i]);[m
+[31m-            is_ipl = true;[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    return is_ipl;[m
+[31m-}[m
+[1mdiff --git a/secrets.h b/secrets.h[m
+[1mindex ddbccc6..264e2ad 100644[m
+[1m--- a/secrets.h[m
+[1m+++ b/secrets.h[m
+[36m@@ -1,6 +1,6 @@[m
+ // Wi-Fi network to connect to (if not in AP mode)[m
+[31m-char* ssid = "xxxxxxxx1";[m
+[31m-char* password = "xxxxxxxxx";[m
+[32m+[m[32mchar* ssid = "Weissig2011";[m
+[32m+[m[32mchar* password = "VereinsHaus";[m
+ [m
+ // Editor Access[m
+ const char* editor_username = "admin";[m
