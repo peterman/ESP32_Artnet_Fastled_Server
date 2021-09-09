@@ -109,11 +109,8 @@ void setup() {
   //  delay(3000); // 3 second delay for recovery
   Serial.begin(115200);
   SPIFFS.begin();
-  EEPROM.begin(EEPROM_SIZE);
-  if (is_initial_program_load() == true) {
-    Serial.println(F("generate new Config"));
-    generateConfig(filename);
-  }
+  Serial.println(F("generate new Config"));
+  generateConfig(filename);
   setupWiFi();
   // three-wire LEDs (WS2811, WS2812, NeoPixel)
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
